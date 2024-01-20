@@ -8,6 +8,8 @@ import com.app.domain.PostReportMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,18 +20,22 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 public class PostDatabaseService {
+
+    Logger logger = LoggerFactory.getLogger(PostDatabaseService.class);
     JdbcTemplateFactory jdbcTemplateFactory;
     LoadingCache<String, Post> postCache;
     LoadingCache<String, PostReport> postReportCache;
 
     @Autowired
     public PostDatabaseService(JdbcTemplateFactory jdbcTemplateFactory) {
-        System.out.println("PostDatabaseService init");
+        logger.info("PostDatabaseService initialising");
+        logger.info("jdbcTemplateFactory initialising");
         this.jdbcTemplateFactory = jdbcTemplateFactory;
         getPostManagementJdbcTemplate().execute("create table if not exists Post (id varchar(100), message varchar(1000))");
         getPostManagementJdbcTemplate().execute("create table if not exists PostReport (id varchar(100), totalNumberOfWords int, averageWordLength double)");
-        System.out.println("jdbcTemplateFactory created");
+        logger.info("jdbcTemplateFactory created");
 
+        logger.info("Caches initialising");
         postCache = CacheBuilder.newBuilder()
                 .build(new CacheLoader<String, Post>() {
                     @Override
@@ -45,6 +51,8 @@ public class PostDatabaseService {
                         return getPostReport(id);
                     }
                 });
+        logger.info("Caches created");
+        logger.info("PostDatabaseService bean created");
     }
 
     // Create Or Update a row for post in DB
@@ -58,7 +66,7 @@ public class PostDatabaseService {
             // create post in db otherwise
             if (oldPost.getId() != null) {
                 String sqlUpdate = "update Post set message = ? where id = ?";
-                getPostManagementJdbcTemplate().update(sqlUpdate, post.getId(), post.getMessage());
+                getPostManagementJdbcTemplate().update(sqlUpdate, post.getMessage(), post.getId());
             } else {
                 String sqlInsert = "insert into Post (id, message) values (?, ?)";
                 getPostManagementJdbcTemplate().update(sqlInsert, post.getId(), post.getMessage());
@@ -71,7 +79,7 @@ public class PostDatabaseService {
             }
             return true;
         } catch (Exception e) {
-            // log
+            logger.error("createOrUpdatePost failed with exception ", e);
             return false;
         }
     }
@@ -112,8 +120,8 @@ public class PostDatabaseService {
             PostReport newPostReport = calculatePostMetrics(post);
 
             if (oldPostReport.getId() != null) {
-                String sqlUpdate = "update PostReport set message = ? where id = ?";
-                getPostManagementJdbcTemplate().update(sqlUpdate, newPostReport.getId(), newPostReport.getTotalNumberOfWords(), newPostReport.getAverageWordLength());
+                String sqlUpdate = "update PostReport set totalNumberOfWords = ?, averageWordLength = ? where id = ?";
+                getPostManagementJdbcTemplate().update(sqlUpdate, newPostReport.getTotalNumberOfWords(), newPostReport.getAverageWordLength(), newPostReport.getId());
             } else {
                 String sqlInsert = "insert into PostReport (id, totalNumberOfWords, averageWordLength) values (?, ?, ?)";
                 getPostManagementJdbcTemplate().update(sqlInsert, newPostReport.getId(), newPostReport.getTotalNumberOfWords(), newPostReport.getAverageWordLength());
@@ -121,7 +129,7 @@ public class PostDatabaseService {
             postReportCache.refresh(newPostReport.getId());
             return true;
         } catch (Exception e) {
-            // log
+            logger.error("createOrUpdatePostReport failed with exception ", e);
             return false;
         }
     }

@@ -68,7 +68,11 @@ dependencies {
     // https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator
     implementation group: 'com.fasterxml.uuid', name: 'java-uuid-generator', version: '4.0.1'
 
+    // Cache:
     implementation group: 'com.google.guava', name: 'guava', version: '32.1.2-jre'
+
+    // Logging:
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.11'
 
 }
 

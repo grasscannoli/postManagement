@@ -46,6 +46,23 @@ public class PostDatabaseServiceTest {
     }
 
     @Test
+    public void createOrUpdatePostAndFetchPostReportTest3() throws ExecutionException {
+
+        context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
+        postDatabaseService = context.getBean(PostDatabaseService.class);
+        Post post = new Post("id_1", "abcd ab abcdef");
+        postDatabaseService.createOrUpdatePost(post);
+
+        post.setMessage("gk gk gk gk");
+        postDatabaseService.createOrUpdatePost(post);
+
+        PostReport postReport = postDatabaseService.getPostReportFromCache("id_1");
+        Assert.isTrue(post.getId().equals(postReport.getId()), "ids don't match");
+        Assert.isTrue( Math.abs(postReport.getAverageWordLength()-2.0) <= 0.000001);
+        Assert.isTrue( postReport.getTotalNumberOfWords() == 4);
+    }
+
+    @Test
     public void toJsonTest() {
         try {
             context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");

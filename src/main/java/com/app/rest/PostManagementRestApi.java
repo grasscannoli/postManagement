@@ -6,34 +6,36 @@ import com.app.services.PostDatabaseService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.concurrent.ExecutionException;
 
 @Path("/api/v1")
 @Component
 public class PostManagementRestApi {
+    Logger logger = LoggerFactory.getLogger(PostManagementRestApi.class);
     private PostDatabaseService postDatabaseService;
 
     @Autowired
     public PostManagementRestApi(PostDatabaseService postDatabaseService) {
-        System.out.println("PostManagementRestApi initialised");
+        logger.info("PostManagementRestApi initialising");
         this.postDatabaseService = postDatabaseService;
+        logger.info("PostManagementRestApi bean created");
     }
 
     @Path("/posts")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createPost(Post post) {
-        System.out.println("reached createPost");
 
         // todo validate function
-        // createOrUpdate the post
-        if (!postDatabaseService.createOrUpdatePost(post)){
+        if (!postDatabaseService.createOrUpdatePost(post)) {
+            logger.error("PostManagementRestApi could not createOrUpdate postId :" + post.getId());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
@@ -43,13 +45,13 @@ public class PostManagementRestApi {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response analyzePost(@PathParam("id") String id) {
-        System.out.println("reached analyzePost");
 
         try {
             // fetch report and return results
             PostReport postReport = postDatabaseService.getPostReportFromCache(id);
             return Response.ok(toJson(postReport)).build();
         } catch (Exception e) {
+            logger.error("PostManagementRestApi could not analyze postId :" + id, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
