@@ -5,16 +5,22 @@ import com.app.domain.Post;
 import com.app.domain.PostMapper;
 import com.app.domain.PostReport;
 import com.app.domain.PostReportMapper;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class PostDatabaseService {
     JdbcTemplateFactory jdbcTemplateFactory;
+    LoadingCache<String, Post> postCache;
+    LoadingCache<String, PostReport> postReportCache;
 
     @Autowired
     public PostDatabaseService(JdbcTemplateFactory jdbcTemplateFactory) {
@@ -23,6 +29,22 @@ public class PostDatabaseService {
         getPostManagementJdbcTemplate().execute("create table if not exists Post (id varchar(100), message varchar(1000))");
         getPostManagementJdbcTemplate().execute("create table if not exists PostReport (id varchar(100), totalNumberOfWords int, averageWordLength double)");
         System.out.println("jdbcTemplateFactory created");
+
+        postCache = CacheBuilder.newBuilder()
+                .build(new CacheLoader<String, Post>() {
+                    @Override
+                    public Post load(final String id) throws Exception {
+                        return getPost(id);
+                    }
+                });
+
+        postReportCache = CacheBuilder.newBuilder()
+                .build(new CacheLoader<String, PostReport>() {
+                    @Override
+                    public PostReport load(final String id) throws Exception {
+                        return getPostReport(id);
+                    }
+                });
     }
 
     // Create Or Update a row for post in DB
@@ -30,17 +52,18 @@ public class PostDatabaseService {
 
         try {
             // Check if post with this id already exists
-            Post oldPost = getPost(post.getId());
+            Post oldPost = getPostFromCache(post.getId());
 
             // Update if it already exists and return
             // create post in db otherwise
-            if (oldPost != null) {
+            if (oldPost.getId() != null) {
                 String sqlUpdate = "update Post set message = ? where id = ?";
                 getPostManagementJdbcTemplate().update(sqlUpdate, post.getId(), post.getMessage());
             } else {
                 String sqlInsert = "insert into Post (id, message) values (?, ?)";
                 getPostManagementJdbcTemplate().update(sqlInsert, post.getId(), post.getMessage());
             }
+            postCache.refresh(post.getId());
 
             // create corresponding report
             if (!createOrUpdatePostReport(post)) {
@@ -53,15 +76,23 @@ public class PostDatabaseService {
         }
     }
 
+    public PostReport getPostReportFromCache(String id) throws ExecutionException {
+        return postReportCache.get(id);
+    }
+
     // Used for returning analysis
-    public PostReport getPostReport(String id) {
+    private PostReport getPostReport(String id) {
         // find the db row for postReport
         try {
             String sqlQuery = "select * from PostReport where id = ?";
             return getPostManagementJdbcTemplate().queryForObject(sqlQuery, new Object[]{id}, new PostReportMapper());
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            return new PostReport();
         }
+    }
+
+    public Post getPostFromCache(String id) throws ExecutionException {
+        return postCache.get(id);
     }
 
     // Find the db row for post
@@ -70,23 +101,24 @@ public class PostDatabaseService {
             String sqlQuery = "select * from Post where id = ?";
             return getPostManagementJdbcTemplate().queryForObject(sqlQuery, new Object[]{id}, new PostMapper());
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            return new Post();
         }
     }
 
     // Create Or Update a row for postReport in DB
     private boolean createOrUpdatePostReport(Post post) {
         try {
-            PostReport oldPostReport = getPostReport(post.getId());
+            PostReport oldPostReport = getPostReportFromCache(post.getId());
             PostReport newPostReport = calculatePostMetrics(post);
 
-            if (oldPostReport != null) {
+            if (oldPostReport.getId() != null) {
                 String sqlUpdate = "update PostReport set message = ? where id = ?";
                 getPostManagementJdbcTemplate().update(sqlUpdate, newPostReport.getId(), newPostReport.getTotalNumberOfWords(), newPostReport.getAverageWordLength());
             } else {
                 String sqlInsert = "insert into PostReport (id, totalNumberOfWords, averageWordLength) values (?, ?, ?)";
                 getPostManagementJdbcTemplate().update(sqlInsert, newPostReport.getId(), newPostReport.getTotalNumberOfWords(), newPostReport.getAverageWordLength());
             }
+            postReportCache.refresh(newPostReport.getId());
             return true;
         } catch (Exception e) {
             // log

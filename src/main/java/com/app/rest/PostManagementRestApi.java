@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.concurrent.ExecutionException;
 
 @Path("/api/v1")
 @Component
@@ -43,18 +44,18 @@ public class PostManagementRestApi {
     @Produces(MediaType.APPLICATION_JSON)
     public Response analyzePost(@PathParam("id") String id) {
         System.out.println("reached analyzePost");
-        // fetch report and return results
-        PostReport postReport = postDatabaseService.getPostReport(id);
-        return Response.ok(toJson(postReport)).build();
+
+        try {
+            // fetch report and return results
+            PostReport postReport = postDatabaseService.getPostReportFromCache(id);
+            return Response.ok(toJson(postReport)).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    private String toJson(Object object) {
+    private String toJson(Object object) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        try {
-            return ow.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            // todo log
-            return "hello";
-        }
+        return ow.writeValueAsString(object);
     }
 }

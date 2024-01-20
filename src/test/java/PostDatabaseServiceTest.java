@@ -8,6 +8,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -17,28 +18,28 @@ public class PostDatabaseServiceTest {
     private PostDatabaseService postDatabaseService;
 
     @Test
-    public void createOrUpdatePostAndFetchPostReportTest1() {
+    public void createOrUpdatePostAndFetchPostReportTest1() throws ExecutionException {
 
         context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
         postDatabaseService = context.getBean(PostDatabaseService.class);
         Post post = new Post("DUMMMY_ID", "DUMMY_MESSAGE");
         postDatabaseService.createOrUpdatePost(post);
 
-        PostReport postReport = postDatabaseService.getPostReport("DUMMMY_ID");
+        PostReport postReport = postDatabaseService.getPostReportFromCache("DUMMMY_ID");
         Assert.isTrue(post.getId().equals(postReport.getId()), "ids don't match");
         Assert.isTrue( Math.abs(postReport.getAverageWordLength()-13.0) <= 0.000001);
         Assert.isTrue( postReport.getTotalNumberOfWords() == 1);
     }
 
     @Test
-    public void createOrUpdatePostAndFetchPostReportTest2() {
+    public void createOrUpdatePostAndFetchPostReportTest2() throws ExecutionException {
 
         context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
         postDatabaseService = context.getBean(PostDatabaseService.class);
         Post post = new Post("id_1", "abcd ab abcdef");
         postDatabaseService.createOrUpdatePost(post);
 
-        PostReport postReport = postDatabaseService.getPostReport("id_1");
+        PostReport postReport = postDatabaseService.getPostReportFromCache("id_1");
         Assert.isTrue(post.getId().equals(postReport.getId()), "ids don't match");
         Assert.isTrue( Math.abs(postReport.getAverageWordLength()-4.0) <= 0.000001);
         Assert.isTrue( postReport.getTotalNumberOfWords() == 3);
@@ -56,7 +57,7 @@ public class PostDatabaseServiceTest {
             Post post = new Post("DUMMMY_ID", "DUMMY_MESSAGE");
             postDatabaseService.createOrUpdatePost(post);
 
-            PostReport postReport = postDatabaseService.getPostReport("DUMMMY_ID");
+            PostReport postReport = postDatabaseService.getPostReportFromCache("DUMMMY_ID");
             String jsonString = (String) toJsonMethod.invoke(postManagementRestApi, postReport);
             String actualString = "{\n" +
                     "  \"id\" : \"DUMMMY_ID\",\n" +
