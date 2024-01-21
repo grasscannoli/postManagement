@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 
 @Service
 public class JdbcTemplateFactory {
-    Logger logger = LoggerFactory.getLogger(JdbcTemplateFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(JdbcTemplateFactory.class);
     private static final LazyInitializer<JdbcTemplate, String> jdbcTemplateLazyInitializer =
             new LazyInitializer<>(new LazyInitializer.Creator<JdbcTemplate, String>() {
                 @Override

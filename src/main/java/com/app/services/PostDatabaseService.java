@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class PostDatabaseService {
 
-    Logger logger = LoggerFactory.getLogger(PostDatabaseService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PostDatabaseService.class);
     JdbcTemplateFactory jdbcTemplateFactory;
     LoadingCache<String, Post> postCache;
     LoadingCache<String, PostReport> postReportCache;

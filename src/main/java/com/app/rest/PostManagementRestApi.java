@@ -3,6 +3,7 @@ package com.app.rest;
 import com.app.domain.Post;
 import com.app.domain.PostReport;
 import com.app.services.PostDatabaseService;
+import com.app.services.PostManagementRestService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -11,15 +12,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/api/v1")
 @Component
 public class PostManagementRestApi {
-    Logger logger = LoggerFactory.getLogger(PostManagementRestApi.class);
-    private PostDatabaseService postDatabaseService;
+    private static final Logger logger = LoggerFactory.getLogger(PostManagementRestApi.class);
+    private final PostDatabaseService postDatabaseService;
 
     @Autowired
     public PostManagementRestApi(PostDatabaseService postDatabaseService) {
@@ -31,8 +36,18 @@ public class PostManagementRestApi {
     @Path("/posts")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createPost(Post post) {
+    public void createPost(Post post, @Context HttpServletRequest request, @Suspended AsyncResponse asyncResponse) {
+        PostManagementRestService.executeAsyncResponse(request, asyncResponse, httpReq -> createPostAsync(post));
+    }
 
+    @Path("/posts/{id}/analysis")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public void analyzePost(@PathParam("id") String id, @Context HttpServletRequest request, @Suspended AsyncResponse asyncResponse) {
+        PostManagementRestService.executeAsyncResponse(request, asyncResponse, httpReq -> analyzePostAsync(id));
+    }
+
+    private Response createPostAsync(Post post) {
         // todo validate function
         if (!postDatabaseService.createOrUpdatePost(post)) {
             logger.error("PostManagementRestApi could not createOrUpdate postId :" + post.getId());
@@ -41,11 +56,7 @@ public class PostManagementRestApi {
         return Response.ok().build();
     }
 
-    @Path("/posts/{id}/analysis")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response analyzePost(@PathParam("id") String id) {
-
+    private Response analyzePostAsync(String id) {
         try {
             // fetch report and return results
             PostReport postReport = postDatabaseService.getPostReportFromCache(id);
