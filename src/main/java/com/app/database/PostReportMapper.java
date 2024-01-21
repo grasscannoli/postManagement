@@ -1,5 +1,6 @@
-package com.app.domain;
+package com.app.database;
 
+import com.app.domain.PostReport;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

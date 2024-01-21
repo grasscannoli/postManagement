@@ -16,6 +16,16 @@
         <param-value>classpath:spring/applicationContext.xml</param-value>
     </context-param>
 
+    <filter>
+        <filter-name>PostManagementRateLimitFilter</filter-name>
+        <filter-class>com.app.rest.RateLimitFilter</filter-class>
+        <async-supported>true</async-supported>
+    </filter>
+    <filter-mapping>
+        <filter-name>PostManagementRateLimitFilter</filter-name>
+        <url-pattern>/rest/*</url-pattern>
+    </filter-mapping>
+
     <servlet>
         <servlet-name>PostManagementServlet</servlet-name>
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>

@@ -2,9 +2,9 @@ package com.app.services;
 
 import com.app.database.JdbcTemplateFactory;
 import com.app.domain.Post;
-import com.app.domain.PostMapper;
+import com.app.database.PostMapper;
 import com.app.domain.PostReport;
-import com.app.domain.PostReportMapper;
+import com.app.database.PostReportMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;

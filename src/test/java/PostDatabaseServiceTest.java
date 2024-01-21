@@ -23,7 +23,8 @@ public class PostDatabaseServiceTest {
         context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
         postDatabaseService = context.getBean(PostDatabaseService.class);
         Post post = new Post("DUMMMY_ID", "DUMMY_MESSAGE");
-        postDatabaseService.createOrUpdatePost(post);
+        boolean result = postDatabaseService.createOrUpdatePost(post);
+        Assert.isTrue(result);
 
         PostReport postReport = postDatabaseService.getPostReportFromCache("DUMMMY_ID");
         Assert.isTrue(post.getId().equals(postReport.getId()), "ids don't match");
@@ -37,7 +38,8 @@ public class PostDatabaseServiceTest {
         context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
         postDatabaseService = context.getBean(PostDatabaseService.class);
         Post post = new Post("id_1", "abcd ab abcdef");
-        postDatabaseService.createOrUpdatePost(post);
+        boolean result = postDatabaseService.createOrUpdatePost(post);
+        Assert.isTrue(result);
 
         PostReport postReport = postDatabaseService.getPostReportFromCache("id_1");
         Assert.isTrue(post.getId().equals(postReport.getId()), "ids don't match");
@@ -51,10 +53,12 @@ public class PostDatabaseServiceTest {
         context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
         postDatabaseService = context.getBean(PostDatabaseService.class);
         Post post = new Post("id_1", "abcd ab abcdef");
-        postDatabaseService.createOrUpdatePost(post);
+        boolean result = postDatabaseService.createOrUpdatePost(post);
+        Assert.isTrue(result);
 
         post.setMessage("gk gk gk gk");
-        postDatabaseService.createOrUpdatePost(post);
+        result = postDatabaseService.createOrUpdatePost(post);
+        Assert.isTrue(result);
 
         PostReport postReport = postDatabaseService.getPostReportFromCache("id_1");
         Assert.isTrue(post.getId().equals(postReport.getId()), "ids don't match");
@@ -72,7 +76,8 @@ public class PostDatabaseServiceTest {
 
             postDatabaseService = context.getBean(PostDatabaseService.class);
             Post post = new Post("DUMMMY_ID", "DUMMY_MESSAGE");
-            postDatabaseService.createOrUpdatePost(post);
+            boolean result = postDatabaseService.createOrUpdatePost(post);
+            Assert.isTrue(result);
 
             PostReport postReport = postDatabaseService.getPostReportFromCache("DUMMMY_ID");
             String jsonString = (String) toJsonMethod.invoke(postManagementRestApi, postReport);
