@@ -67,6 +67,21 @@ public class PostDatabaseServiceTest {
     }
 
     @Test
+    public void checkPostEncrytionAndDecryption() throws ExecutionException {
+
+        context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
+        postDatabaseService = context.getBean(PostDatabaseService.class);
+        Post post = new Post("id_1", "abcd ab abcdef");
+        boolean result = postDatabaseService.createOrUpdatePost(post);
+        Assert.isTrue(result);
+
+        Post newPost = postDatabaseService.getPostFromCache("id_1");
+        Assert.isTrue(post.getId().equals(newPost.getId()), "ids don't match");
+        Assert.isTrue(post.getMessage().equals(newPost.getMessage()));
+    }
+
+
+    @Test
     public void toJsonTest() {
         try {
             context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");

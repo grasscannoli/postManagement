@@ -74,6 +74,9 @@ dependencies {
     // Logging:
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.11'
 
+    // commons IO
+    implementation group: 'commons-io', name: 'commons-io', version: '2.4'
+
 }
 
 apply plugin: 'war'

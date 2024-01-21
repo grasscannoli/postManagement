@@ -5,6 +5,7 @@ import com.app.domain.Post;
 import com.app.database.PostMapper;
 import com.app.domain.PostReport;
 import com.app.database.PostReportMapper;
+import com.app.services.encryption.DataSecurityService;
 import com.app.services.parallelization.Worker;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -23,19 +24,60 @@ import java.util.concurrent.ExecutionException;
 public class PostDatabaseService {
 
     private static final Logger logger = LoggerFactory.getLogger(PostDatabaseService.class);
-    JdbcTemplateFactory jdbcTemplateFactory;
-    LoadingCache<String, Post> postCache;
-    LoadingCache<String, PostReport> postReportCache;
+    private JdbcTemplateFactory jdbcTemplateFactory;
+    private LoadingCache<String, Post> postCache;
+    private LoadingCache<String, PostReport> postReportCache;
+    private DataSecurityService dataSecurityService;
 
     @Autowired
-    public PostDatabaseService(JdbcTemplateFactory jdbcTemplateFactory) {
+    public PostDatabaseService(JdbcTemplateFactory jdbcTemplateFactory, DataSecurityService dataSecurityService) {
         logger.info("PostDatabaseService initialising");
+        initialiseJdbcTemplate(jdbcTemplateFactory);
+        initialiseCache();
+        this.dataSecurityService = dataSecurityService;
+        logger.info("PostDatabaseService bean created");
+    }
+
+    // Create Or Update a row for post in DB
+
+    public boolean createOrUpdatePost(Post post) {
+
+        try {
+            // Check if post with this id already exists
+            Post oldPost = getPostFromCache(post.getId());
+
+            // Update if it already exists and return
+            // create post in db otherwise
+            Post firstWorkerCopy = new Post(post.getId(), post.getMessage());
+            Worker<Boolean> savePostWorker = new Worker<>(() -> savePost(firstWorkerCopy, oldPost), false);
+
+            // create corresponding report
+            Post secondWorkerCopy = new Post(post.getId(), post.getMessage());
+            Worker<Boolean> savePostReportWorker = new Worker<>(() -> createOrUpdatePostReport(secondWorkerCopy), false);
+
+            return savePostWorker.executeWork() && savePostReportWorker.executeWork();
+        } catch (Exception e) {
+            logger.error("createOrUpdatePost failed with exception ", e);
+            return false;
+        }
+    }
+    public PostReport getPostReportFromCache(String id) throws ExecutionException {
+        return postReportCache.get(id);
+    }
+
+    public Post getPostFromCache(String id) throws ExecutionException {
+        return postCache.get(id);
+    }
+
+    private void initialiseJdbcTemplate(JdbcTemplateFactory jdbcTemplateFactory) {
         logger.info("jdbcTemplateFactory initialising");
         this.jdbcTemplateFactory = jdbcTemplateFactory;
         getPostManagementJdbcTemplate().execute("create table if not exists Post (id varchar(100), message varchar(1000))");
         getPostManagementJdbcTemplate().execute("create table if not exists PostReport (id varchar(100), totalNumberOfWords int, averageWordLength double)");
         logger.info("jdbcTemplateFactory created");
+    }
 
+    private void initialiseCache() {
         logger.info("Caches initialising");
         postCache = CacheBuilder.newBuilder()
                 .build(new CacheLoader<String, Post>() {
@@ -53,31 +95,10 @@ public class PostDatabaseService {
                     }
                 });
         logger.info("Caches created");
-        logger.info("PostDatabaseService bean created");
-    }
-
-    // Create Or Update a row for post in DB
-    public boolean createOrUpdatePost(Post post) {
-
-        try {
-            // Check if post with this id already exists
-            Post oldPost = getPostFromCache(post.getId());
-
-            // Update if it already exists and return
-            // create post in db otherwise
-            Worker<Boolean> savePostWorker = new Worker<>(() -> savePost(post, oldPost), false);
-
-            // create corresponding report
-            Worker<Boolean> savePostReportWorker = new Worker<>(() -> createOrUpdatePostReport(post), false);
-
-            return savePostWorker.executeWork() && savePostReportWorker.executeWork();
-        } catch (Exception e) {
-            logger.error("createOrUpdatePost failed with exception ", e);
-            return false;
-        }
     }
 
     private Boolean savePost(Post post, Post oldPost) {
+        post.setMessage(dataSecurityService.encryptString(post.getMessage()));
         if (oldPost.getId() != null) {
             String sqlUpdate = "update Post set message = ? where id = ?";
             getPostManagementJdbcTemplate().update(sqlUpdate, post.getMessage(), post.getId());
@@ -87,10 +108,6 @@ public class PostDatabaseService {
         }
         postCache.refresh(post.getId());
         return true;
-    }
-
-    public PostReport getPostReportFromCache(String id) throws ExecutionException {
-        return postReportCache.get(id);
     }
 
     // Used for returning analysis
@@ -104,15 +121,13 @@ public class PostDatabaseService {
         }
     }
 
-    public Post getPostFromCache(String id) throws ExecutionException {
-        return postCache.get(id);
-    }
-
     // Find the db row for post
     private Post getPost(String id) {
         try {
             String sqlQuery = "select * from Post where id = ?";
-            return getPostManagementJdbcTemplate().queryForObject(sqlQuery, new Object[]{id}, new PostMapper());
+            Post post = getPostManagementJdbcTemplate().queryForObject(sqlQuery, new Object[]{id}, new PostMapper());
+            post.setMessage(dataSecurityService.decryptString(post.getMessage()));
+            return post;
         } catch (EmptyResultDataAccessException e) {
             return new Post();
         }

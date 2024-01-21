@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(RateLimitFilter.class);
-    private static final int MAX_REQUESTS = 2; // todo make it configurable
+    private static final int MAX_REQUESTS = 10; // todo make it configurable
     private static final Duration TIME_WINDOW = Duration.ofMinutes(1); // todo make it configurable
     private static final Map<String, Queue<Long>> requestMap = new ConcurrentHashMap<>();
 
