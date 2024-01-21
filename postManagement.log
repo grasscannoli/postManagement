@@ -1,32 +1,32 @@
-2024-01-21 13:49:06 INFO  PostDatabaseService initialising
-2024-01-21 13:49:06 INFO  jdbcTemplateFactory initialising
-2024-01-21 13:49:07 INFO  jdbcTemplateFactory created
-2024-01-21 13:49:07 INFO  Caches initialising
-2024-01-21 13:49:07 INFO  Caches created
-2024-01-21 13:49:07 INFO  PostDatabaseService bean created
-2024-01-21 13:49:07 INFO  PostManagementRestApi initialising
-2024-01-21 13:49:07 INFO  PostManagementRestApi bean created
-2024-01-21 13:49:07 INFO  PostDatabaseService initialising
-2024-01-21 13:49:07 INFO  jdbcTemplateFactory initialising
-2024-01-21 13:49:07 INFO  jdbcTemplateFactory created
-2024-01-21 13:49:07 INFO  Caches initialising
-2024-01-21 13:49:07 INFO  Caches created
-2024-01-21 13:49:07 INFO  PostDatabaseService bean created
-2024-01-21 13:49:07 INFO  PostManagementRestApi initialising
-2024-01-21 13:49:07 INFO  PostManagementRestApi bean created
-2024-01-21 13:49:08 INFO  PostDatabaseService initialising
-2024-01-21 13:49:08 INFO  jdbcTemplateFactory initialising
-2024-01-21 13:49:08 INFO  jdbcTemplateFactory created
-2024-01-21 13:49:08 INFO  Caches initialising
-2024-01-21 13:49:08 INFO  Caches created
-2024-01-21 13:49:08 INFO  PostDatabaseService bean created
-2024-01-21 13:49:08 INFO  PostManagementRestApi initialising
-2024-01-21 13:49:08 INFO  PostManagementRestApi bean created
-2024-01-21 13:49:09 INFO  PostDatabaseService initialising
-2024-01-21 13:49:09 INFO  jdbcTemplateFactory initialising
-2024-01-21 13:49:09 INFO  jdbcTemplateFactory created
-2024-01-21 13:49:09 INFO  Caches initialising
-2024-01-21 13:49:09 INFO  Caches created
-2024-01-21 13:49:09 INFO  PostDatabaseService bean created
-2024-01-21 13:49:09 INFO  PostManagementRestApi initialising
-2024-01-21 13:49:09 INFO  PostManagementRestApi bean created
+2024-01-21 16:17:33 INFO  PostDatabaseService initialising
+2024-01-21 16:17:33 INFO  jdbcTemplateFactory initialising
+2024-01-21 16:17:33 INFO  jdbcTemplateFactory created
+2024-01-21 16:17:33 INFO  Caches initialising
+2024-01-21 16:17:33 INFO  Caches created
+2024-01-21 16:17:33 INFO  PostDatabaseService bean created
+2024-01-21 16:17:33 INFO  PostManagementRestApi initialising
+2024-01-21 16:17:33 INFO  PostManagementRestApi bean created
+2024-01-21 16:17:34 INFO  PostDatabaseService initialising
+2024-01-21 16:17:34 INFO  jdbcTemplateFactory initialising
+2024-01-21 16:17:34 INFO  jdbcTemplateFactory created
+2024-01-21 16:17:34 INFO  Caches initialising
+2024-01-21 16:17:34 INFO  Caches created
+2024-01-21 16:17:34 INFO  PostDatabaseService bean created
+2024-01-21 16:17:34 INFO  PostManagementRestApi initialising
+2024-01-21 16:17:34 INFO  PostManagementRestApi bean created
+2024-01-21 16:17:35 INFO  PostDatabaseService initialising
+2024-01-21 16:17:35 INFO  jdbcTemplateFactory initialising
+2024-01-21 16:17:35 INFO  jdbcTemplateFactory created
+2024-01-21 16:17:35 INFO  Caches initialising
+2024-01-21 16:17:35 INFO  Caches created
+2024-01-21 16:17:35 INFO  PostDatabaseService bean created
+2024-01-21 16:17:35 INFO  PostManagementRestApi initialising
+2024-01-21 16:17:35 INFO  PostManagementRestApi bean created
+2024-01-21 16:17:35 INFO  PostDatabaseService initialising
+2024-01-21 16:17:35 INFO  jdbcTemplateFactory initialising
+2024-01-21 16:17:35 INFO  jdbcTemplateFactory created
+2024-01-21 16:17:35 INFO  Caches initialising
+2024-01-21 16:17:35 INFO  Caches created
+2024-01-21 16:17:35 INFO  PostDatabaseService bean created
+2024-01-21 16:17:35 INFO  PostManagementRestApi initialising
+2024-01-21 16:17:35 INFO  PostManagementRestApi bean created

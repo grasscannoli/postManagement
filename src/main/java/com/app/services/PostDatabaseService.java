@@ -5,6 +5,7 @@ import com.app.domain.Post;
 import com.app.database.PostMapper;
 import com.app.domain.PostReport;
 import com.app.database.PostReportMapper;
+import com.app.services.parallelization.Worker;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -64,24 +65,28 @@ public class PostDatabaseService {
 
             // Update if it already exists and return
             // create post in db otherwise
-            if (oldPost.getId() != null) {
-                String sqlUpdate = "update Post set message = ? where id = ?";
-                getPostManagementJdbcTemplate().update(sqlUpdate, post.getMessage(), post.getId());
-            } else {
-                String sqlInsert = "insert into Post (id, message) values (?, ?)";
-                getPostManagementJdbcTemplate().update(sqlInsert, post.getId(), post.getMessage());
-            }
-            postCache.refresh(post.getId());
+            Worker<Boolean> savePostWorker = new Worker<>(() -> savePost(post, oldPost), false);
 
             // create corresponding report
-            if (!createOrUpdatePostReport(post)) {
-                return false;
-            }
-            return true;
+            Worker<Boolean> savePostReportWorker = new Worker<>(() -> createOrUpdatePostReport(post), false);
+
+            return savePostWorker.executeWork() && savePostReportWorker.executeWork();
         } catch (Exception e) {
             logger.error("createOrUpdatePost failed with exception ", e);
             return false;
         }
+    }
+
+    private Boolean savePost(Post post, Post oldPost) {
+        if (oldPost.getId() != null) {
+            String sqlUpdate = "update Post set message = ? where id = ?";
+            getPostManagementJdbcTemplate().update(sqlUpdate, post.getMessage(), post.getId());
+        } else {
+            String sqlInsert = "insert into Post (id, message) values (?, ?)";
+            getPostManagementJdbcTemplate().update(sqlInsert, post.getId(), post.getMessage());
+        }
+        postCache.refresh(post.getId());
+        return true;
     }
 
     public PostReport getPostReportFromCache(String id) throws ExecutionException {

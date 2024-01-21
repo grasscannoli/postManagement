@@ -1,4 +1,4 @@
-package com.app.services;
+package com.app.services.parallelization;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +9,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.core.Response;
 
 @Service
-public class PostManagementRestService {
+public class AsyncRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostManagementRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AsyncRestService.class);
 
     public static <V> void executeAsyncResponse(final HttpServletRequest request ,final AsyncResponse asyncResponse, final AsyncCallable<V> callable) {
         new Thread(new Runnable() {
@@ -29,7 +29,7 @@ public class PostManagementRestService {
         }).start();
     }
 
-    public interface AsyncCallable<V> {
+    public static interface AsyncCallable<V> {
 
         V call(HttpServletRequest request) throws Exception;
     }

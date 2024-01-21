@@ -3,7 +3,7 @@ package com.app.rest;
 import com.app.domain.Post;
 import com.app.domain.PostReport;
 import com.app.services.PostDatabaseService;
-import com.app.services.PostManagementRestService;
+import com.app.services.parallelization.AsyncRestService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -37,14 +37,14 @@ public class PostManagementRestApi {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public void createPost(Post post, @Context HttpServletRequest request, @Suspended AsyncResponse asyncResponse) {
-        PostManagementRestService.executeAsyncResponse(request, asyncResponse, httpReq -> createPostAsync(post));
+        AsyncRestService.executeAsyncResponse(request, asyncResponse, httpReq -> createPostAsync(post));
     }
 
     @Path("/posts/{id}/analysis")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public void analyzePost(@PathParam("id") String id, @Context HttpServletRequest request, @Suspended AsyncResponse asyncResponse) {
-        PostManagementRestService.executeAsyncResponse(request, asyncResponse, httpReq -> analyzePostAsync(id));
+        AsyncRestService.executeAsyncResponse(request, asyncResponse, httpReq -> analyzePostAsync(id));
     }
 
     private Response createPostAsync(Post post) {
