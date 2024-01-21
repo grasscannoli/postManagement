@@ -48,7 +48,10 @@ public class PostManagementRestApi {
     }
 
     private Response createPostAsync(Post post) {
-        // todo validate function
+        if (!validPost(post)) {
+            logger.error("PostManagementRestApi received an invalid post");
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         if (!postDatabaseService.createOrUpdatePost(post)) {
             logger.error("PostManagementRestApi could not createOrUpdate postId :" + post.getId());
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -65,6 +68,13 @@ public class PostManagementRestApi {
             logger.error("PostManagementRestApi could not analyze postId :" + id, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private boolean validPost(Post post) {
+        if (post == null || post.getId() == null || post.getMessage() == null || "".equals(post.getMessage())) {
+            return false;
+        }
+        return true;
     }
 
     private String toJson(Object object) throws JsonProcessingException {

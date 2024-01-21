@@ -19,7 +19,7 @@ import java.util.Base64;
 @Service
 public class DataSecurityService {
 
-    public static final int GCM_TAG_LENGTH = 16;
+    private static final int GCM_TAG_LENGTH = 16;
     private EncryptionMetadata encryptionMetadata;
 
     public DataSecurityService() {
@@ -66,7 +66,7 @@ public class DataSecurityService {
         }
     }
 
-    public static String cryptInputStream(Cipher cipher, InputStream inputStream) {
+    private static String cryptInputStream(Cipher cipher, InputStream inputStream) {
         OutputStream outputStream = null;
         File tempOutputFile = null;
 
@@ -95,11 +95,11 @@ public class DataSecurityService {
         }
     }
 
-    public static Key getAESKey(byte[] key) {
+    private static Key getAESKey(byte[] key) {
         return new SecretKeySpec(key, "AES");
     }
 
-    public static Cipher getAESCipher(Key key, byte[] ivBytes, boolean isEncryptionMode) {
+    private static Cipher getAESCipher(Key key, byte[] ivBytes, boolean isEncryptionMode) {
         try {
             AlgorithmParameterSpec iv = new GCMParameterSpec(GCM_TAG_LENGTH * 8, ivBytes);
 
