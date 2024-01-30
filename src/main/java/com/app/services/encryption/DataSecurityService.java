@@ -16,12 +16,21 @@ import java.security.Key;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Base64;
 
+/**
+ * Service to encrypt and decrypt sensitive data in
+ * AES-256 GCM format. <p>
+ *     Ideally needs to be called before
+ * storing into the data base and while retrieving from
+ * the database.
+ */
+
 @Service
 public class DataSecurityService {
 
     private static final int GCM_TAG_LENGTH = 16;
     private EncryptionMetadata encryptionMetadata;
 
+    // The IV and Encryption key are to be put into the config json
     public DataSecurityService() {
         InputStream is = null;
         try {
@@ -35,6 +44,7 @@ public class DataSecurityService {
         }
     }
 
+    // Encrypts the string in AES256 GCM format, returns Base64 encoded string
     public String encryptString(String plainStr) {
         InputStream is = null;
         try {
@@ -50,6 +60,7 @@ public class DataSecurityService {
         }
     }
 
+    // Decrypts the string in AES256 GCM format, returns decrypted plainText string
     public String decryptString(String encryptedStr) {
         InputStream is = null;
         try {

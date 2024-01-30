@@ -1,5 +1,10 @@
 package com.app.patterns;
 
+/**
+ * Singleton Pattern Lazy initialiser that is thread safe.
+ * @param <Type>
+ * @param <Param>
+ */
 public class LazyInitializer <Type, Param>{
     public interface Creator<T, P> {
 

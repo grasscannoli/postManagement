@@ -1,5 +1,8 @@
 package com.app.domain;
 
+/**
+ * PostReport domain object carries the Post metrics
+ */
 public class PostReport {
     private String id;
     private Integer totalNumberOfWords;

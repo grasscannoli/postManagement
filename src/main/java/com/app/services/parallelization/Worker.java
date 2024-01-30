@@ -5,6 +5,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 
+/**
+ * Worker method to run a Callable
+ * @param <V>
+ */
 public class Worker<V> {
     private static final Logger logger = LoggerFactory.getLogger(Worker.class);
     private Callable<V> work;

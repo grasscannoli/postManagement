@@ -16,6 +16,12 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Ratelimiter that restricts requests from same IP based on the <p>
+ *  (i) MAX_REQUESTS <p>
+ *  (ii) TIME_WINDOW  <p>
+ * settings.
+ */
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(RateLimitFilter.class);

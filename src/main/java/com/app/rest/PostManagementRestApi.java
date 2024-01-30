@@ -20,6 +20,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+/**
+ * Main REST api that handles the incoming requests
+ */
 @Path("/api/v1")
 @Component
 public class PostManagementRestApi {
@@ -33,6 +36,19 @@ public class PostManagementRestApi {
         logger.info("PostManagementRestApi bean created");
     }
 
+    /**
+     * POST request to createOrUpdatePost. Sample curl: <p><p>
+     * curl --location 'http://localhost:8080/postManagement-v1/rest/api/v1/posts' \
+     * --header 'Content-Type: application/json' \
+     * --data '{
+     *     "id" : "post_1235",
+     *     "message" : "iPhone 13 pro max is awesome boba!"
+     * }'
+     * <p>
+     * @param post
+     * @param request
+     * @param asyncResponse
+     */
     @Path("/posts")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -40,6 +56,15 @@ public class PostManagementRestApi {
         AsyncRestService.executeAsyncResponse(request, asyncResponse, httpReq -> createPostAsync(post));
     }
 
+    /**
+     * GET request to retrieve Post related stats for given id <p><p>
+     * curl --location 'http://localhost:8080/postManagement-v1/rest/api/v1/posts/post_1235/analysis' \
+     * --data ''
+     * <p>
+     * @param id
+     * @param request
+     * @param asyncResponse
+     */
     @Path("/posts/{id}/analysis")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

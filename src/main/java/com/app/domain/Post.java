@@ -1,5 +1,8 @@
 package com.app.domain;
 
+/**
+ * Main post domain object.
+ */
 public class Post {
     private String id;
     private String message;

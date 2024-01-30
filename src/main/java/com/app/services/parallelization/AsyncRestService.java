@@ -8,6 +8,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.core.Response;
 
+
+/**
+ * This service helps <p>
+ *     (a) Suspend the REST connection with client <p>
+ *     (b) Do processing in a separate thread <p>
+ *     (c) Resume connection with client and send response <p>
+ * The biggest benefit of this is we don't block the REST threads,
+ * new requests can be accepted without delay, reduces response times.
+ */
 @Service
 public class AsyncRestService {
 

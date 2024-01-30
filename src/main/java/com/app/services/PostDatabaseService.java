@@ -20,6 +20,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+
+/**
+ * Service to manage CRUD operations into the SQL DB
+ */
 @Service
 public class PostDatabaseService {
 
